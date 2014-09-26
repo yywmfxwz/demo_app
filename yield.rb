@@ -1,0 +1,1 @@
+"abc".each_byte{|c|puts"<%c>",c}
