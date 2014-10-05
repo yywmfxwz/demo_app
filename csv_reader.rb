@@ -1,26 +1,37 @@
 require_relative 'book_in_stock'
 
-class CsvReader
-
-  def initialize
+class CsvReader 
+  
+  def initialize (data_file)
     @books_in_stock = []
+    @data_file = data_file
   end
- 
-  def read_in_csv_data(csv_file_name)
-    File.foreach(csv_file_name) do |line|
-           content = line.chomp.split(",")
-           book = BookInStock.new(content[0],content[2], content[1])
-           @books_in_stock << book
+  
+  def start 
+      File.foreach(@data_file) do |line|
+             content = line.chomp.split(",")
+             book = BookInStock.new(content[0],content[1], 
+                      content[2], content[3], content[4].to_f,
+                      content[5].to_i )
+             @books_in_stock << book
+      end  
+  end
+
+  def stop
+    # Save the books_in_stock collection back to the
+    # CSV file.
+    f = File.new("temp.csv",  "w")
+    @books_in_stock.each do |b| 
+      f.puts "#{b.isbn},#{b.title},#{b.author},#{b.genre},#{b.price},#{b.quantity}"
     end
-  end  
+    File.rename("temp.csv",@data_file)
+  end
 
-  def total_value_in_stock   
-    sum = 0.0        
-    @books_in_stock.each {|book| sum += book.price}
-    sum
-  end  
+  def findISBN isbn
+     @books_in_stock.find {|book| book.isbn == isbn}
+  end
 
-  def number_of_an_isbn(isbn)
-    @books_in_stock.count{|book| book.isbn == isbn}
+  def authorSearch(author)
+     @books_in_stock.select {|book| book.author == author}
   end
 end 
